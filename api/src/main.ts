@@ -1,7 +1,7 @@
 import app from "./api";
 import { errorHandler } from "./exceptions";
 
-const port = 3000;
+const port = 8080;
 
 app.use(errorHandler);
 

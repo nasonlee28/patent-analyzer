@@ -39,13 +39,13 @@ export class PatentAnalyzer {
     return productAnalyses;
   }
 
-  async test() {
-    const chatCompletion = await this.openai.chat.completions.create({
-      messages: [{ role: "user", content: "Say this is a test" }],
-      model: "gpt-4o-mini"
-    });
-    return chatCompletion;
-  }
+  // async test() {
+  //   const chatCompletion = await this.openai.chat.completions.create({
+  //     messages: [{ role: "user", content: "Say this is a test" }],
+  //     model: "gpt-4o-mini"
+  //   });
+  //   return chatCompletion;
+  // }
 
   //   private async analyzeProducts(patent: Patent, products: Product[]): Promise<ProductInfringement[]> {
   private async analyzeProducts(patent: Patent, products: Product[]): Promise<AnalysisResult> {

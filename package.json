@@ -1,26 +1,12 @@
 {
-  "name": "express-app",
+  "name": "patent-analyzer",
   "version": "1.0.0",
-  "description": "A patent analyzer application",
-  "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "start": "concurrently \"npm run start --prefix api\" \"npm start --prefix client\"",
+    "server": "npm run start --prefix api",
+    "client": "npm start --prefix client"
   },
-  "keywords": [
-    "express",
-    "node",
-    "javascript"
-  ],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/express": "^5.0.0",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "openai": "^4.70.2",
-    "typescript": "^5.6.3",
-    "zod": "^3.23.8"
+  "devDependencies": {
+    "concurrently": "^6.0.0"
   }
 }
