@@ -1,9 +1,19 @@
 import { Request, Response, NextFunction } from "express";
+import { NotFoundError } from "./NotfoundError";
 
-export const errorHandler = (error: Error, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (
+  error: Error | NotFoundError,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   console.error(error);
-  res.status(500).json({
-    error: "Internal server error",
-    message: error.message
-  });
+  if (error instanceof NotFoundError) {
+    res.status(400).json({
+      error,
+      message: error.message
+    });
+    return;
+  }
+  res.status(500).json({ message: "Internal server error" });
 };

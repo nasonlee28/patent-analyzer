@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
-import { z } from "zod";
 import { Patent, Company, Product, AnalysisResult, AnalysisResultSchema } from "./types";
+import { NotFoundError } from "./NotfoundError";
 
 export class PatentAnalyzer {
   private static instance: PatentAnalyzer;
@@ -28,13 +28,10 @@ export class PatentAnalyzer {
 
   //   async analyzeInfringement(patentId: number, companyName: string): Promise<InfringementAnalysis> {
   async analyzeInfringement(patentId: string, companyName: string): Promise<AnalysisResult> {
-    const patent = this.patents.find(p => p.publication_number === patentId);
-    const company = this.companies.find(c => c.name.toLowerCase() === companyName.toLowerCase());
-    if (!patent || !company) {
-      throw new Error("Patent or company not found");
-    }
+    const [patent, company] = this.findPatentAndCompany(patentId, companyName);
 
     const productAnalyses = await this.analyzeProducts(patent, company.products);
+    productAnalyses.analysis_date = new Date().toISOString().split("T")[0];
 
     return productAnalyses;
   }
@@ -106,7 +103,6 @@ export class PatentAnalyzer {
             "analysis_id": string,
             "patent_id": string,
             "company_name": string,
-            "analysis_date": string,
             "top_infringing_products": [{
                 "product_name": string,
                 "match_score": number,
@@ -130,5 +126,18 @@ export class PatentAnalyzer {
     } catch (error) {
       throw new Error("Failed to parse analysis response");
     }
+  }
+
+  private findPatentAndCompany(patentId: string, companyName: string): [Patent, Company] {
+    const patent = this.patents.find(p => p.publication_number === patentId);
+    if (!patent) {
+      throw new NotFoundError("Patent not found");
+    }
+    const company = this.companies.find(c => c.name.toLowerCase() === companyName.toLowerCase());
+    if (!company) {
+      throw new NotFoundError("Company not found");
+    }
+
+    return [patent, company];
   }
 }
