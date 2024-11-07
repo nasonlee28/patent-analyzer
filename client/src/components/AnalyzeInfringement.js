@@ -1,59 +1,22 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable
-} from "@tanstack/react-table";
+
+import AnalyzerDetails from "./AnalyzerDetails";
 
 axios.defaults.baseURL = "http://localhost:8080";
 
-const columnHelper = createColumnHelper();
-
-const columns = [
-  columnHelper.accessor("product_name", {
-    header: () => "Product Name",
-    cell: info => info.getValue()
-  }),
-  columnHelper.accessor("match_score", {
-    header: () => "Match Score",
-    cell: info => info.getValue()
-  }),
-  columnHelper.accessor("infringement_likelihood", {
-    header: () => "Infringement Likelihood",
-    cell: info => info.getValue()
-  }),
-  columnHelper.accessor("relevant_claims", {
-    header: () => "Relevant Claims",
-    cell: info => {
-      const claims = info.getValue();
-      return claims.map((claim, index) => <li key={index}>{claim}</li>);
-    }
-  }),
-  columnHelper.accessor("explanation", {
-    header: () => "Explanation",
-    cell: info => info.getValue()
-  }),
-  columnHelper.accessor("specific_features", {
-    header: () => "Specific Features",
-    cell: info => {
-      const features = info.getValue();
-      return features.map((feature, index) => <li key={index}>{feature}</li>);
-    }
-  })
-];
-
 const AnalyzeInfringement = () => {
-  const [patentId, setPatentId] = useState("");
-  const [companyName, setCompanyName] = useState("");
+  const [patentId, setPatentId] = useState("US-RE49889-E1");
+  const [companyName, setCompanyName] = useState("Walmart Inc.");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
     setResult(null);
+    setLoading(true);
 
     try {
       const response = await axios.post("api/v1/analyze-infringement", {
@@ -62,77 +25,44 @@ const AnalyzeInfringement = () => {
       });
       setResult(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || "An error occurred");
+      setError(err.response?.data?.message || "An error occurred");
+    } finally {
+      setLoading(false);
     }
   };
-  console.log("x result: ", result);
-  const tableInstance = useReactTable({
-    columns,
-    data: result?.top_infringing_products || [],
-    getCoreRowModel: getCoreRowModel()
-  });
-  //   console.log("x tableInstance: ", tableInstance?.getHeaderGroups?.());
+
   return (
     <div>
-      <h1>Analyze Infringement</h1>
+      <h1>Mini Patent Infringement Check App</h1>
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Patent ID"
-          value={patentId}
-          onChange={e => setPatentId(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Company Name"
-          value={companyName}
-          onChange={e => setCompanyName(e.target.value)}
-          required
-        />
-        <button type="submit">Analyze</button>
-      </form>
-      {result && (
-        <div>
-          <h2>Result:</h2>
-          <table style={{ width: "80%", margin: "auto" }}>
-            <thead>
-              {tableInstance.getHeaderGroups().map(headerGroup => {
-                return (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map(header => (
-                      <th
-                        key={header.id}
-                        // colSpan={header.colSpan}
-                        // style={{ border: "1px solid black" }}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </th>
-                    ))}
-                  </tr>
-                );
-              })}
-            </thead>
-            <tbody>
-              {tableInstance.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => {
-                    return (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <h3>Overall Risk Assessment: {result.overall_risk_assessment}</h3>
+        <div className="input-container">
+          <span>Patent ID: </span>
+          <input
+            type="text"
+            placeholder="Patent ID"
+            value={patentId}
+            onChange={e => setPatentId(e.target.value)}
+            required
+          />
+          <button onClick={() => setPatentId("")}>Clear</button>
         </div>
-      )}
-      {error && <div style={{ color: "red" }}>Error: {error}</div>}
+        <div className="input-container">
+          <span>Company Name: </span>
+          <input
+            type="text"
+            placeholder="Company Name"
+            value={companyName}
+            onChange={e => setCompanyName(e.target.value)}
+            required
+          />
+          <button onClick={() => setCompanyName("")}>Clear</button>
+        </div>
+        <div className="submit-button">
+          {loading ? <button disabled>Loading...</button> : <button type="submit">Analyze</button>}
+        </div>
+      </form>
+      {result && <AnalyzerDetails result={result} />}
+      {error && <div className="error-message">Error: {error}</div>}
     </div>
   );
 };

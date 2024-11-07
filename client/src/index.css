@@ -42,3 +42,53 @@ tfoot {
 tfoot th {
   font-weight: normal;
 }
+
+li {
+  white-space: nowrap;
+}
+
+
+ul {
+  text-align: start;
+  padding-inline-start: 20px;
+}
+
+form {
+  justify-content: space-between;
+}
+
+span {
+  width: 120px;
+  text-align: start;
+}
+
+.input-container {
+  flex-direction: row;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+
+  button {
+    margin-left: 10px;
+  }
+}
+
+.submit-button {
+  margin-top: 10px;
+}
+
+.item-container {
+  flex-direction: row;
+  display: flex;
+  justify-content: center;
+}
+
+.item-value {
+  align-self: center;
+  margin-left: 10px;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
