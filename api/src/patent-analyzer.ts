@@ -9,6 +9,7 @@ export class PatentAnalyzer {
   private patents: Patent[];
   private companies: Company[];
   private reports: { [key in AnalysisResult["analysis_id"]]: AnalysisResult } = {};
+  private idCounter = 1;
 
   private constructor(apiKey: string, patents: Patent[], companies: Company[]) {
     this.openai = new OpenAI({ apiKey });
@@ -47,10 +48,10 @@ export class PatentAnalyzer {
     const [patent, company] = this.findPatentAndCompany(patentId, companyName);
 
     const productAnalyses = await this.analyzeProducts(patent, company.products);
-    productAnalyses.analysis_date = new Date().toISOString().split("T")[0];
+    productAnalyses.analysis_date = new Date().toLocaleDateString();
     productAnalyses.company_name = company.name;
     productAnalyses.patent_id = patent.publication_number;
-    productAnalyses.analysis_id = Math.random().toString(36).substring(7);
+    productAnalyses.analysis_id = `analysis-${this.idCounter++}`;
 
     return productAnalyses;
   }
