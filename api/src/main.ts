@@ -1,5 +1,5 @@
 import app from "./api";
-import { errorHandler } from "./exceptions";
+import { errorHandler } from "./error/exceptions";
 
 const port = 8080;
 

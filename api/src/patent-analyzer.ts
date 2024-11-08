@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { Patent, Company, Product, AnalysisResult, AnalysisResultSchema } from "./types";
-import { NotFoundError } from "./NotfoundError";
+import { NotFoundError } from "./error/NotfoundError";
 
 export class PatentAnalyzer {
   private static instance: PatentAnalyzer;

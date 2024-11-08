@@ -1,11 +1,12 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { NextFunction, Request, Response } from "express";
+import { body } from "express-validator";
 
 import { PatentAnalyzer } from "./patent-analyzer";
 import { loadPatents, loadCompanies } from "./data-loader";
-
-const { check } = require("express-validator");
+import { AnalysisResultSchema } from "./types";
+import { validateRequest } from "./error/exceptions";
 
 dotenv.config();
 
@@ -19,16 +20,39 @@ const analyzer = PatentAnalyzer.getInstance(process.env.OPENAI_API_KEY!, patents
 
 app.post(
   "/api/v1/analyze-infringement",
-  [
-    check("patentId").notEmpty().withMessage("Patent ID is required"),
-    check("companyName").notEmpty().withMessage("Company name is required")
-  ],
+  body("patentId").notEmpty().withMessage("Patent ID is required"),
+  body("companyName").notEmpty().withMessage("Company name is required"),
+  validateRequest,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { patentId, companyName } = req.body;
 
       const analysis = await analyzer.analyzeInfringement(patentId, companyName);
       res.json(analysis);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+app.post(
+  "/api/v1/save-report",
+  body("report", "Report is required").notEmpty(),
+  validateRequest,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { report } = req.body;
+
+      const parsedReport = AnalysisResultSchema.safeParse(report);
+      if (!parsedReport.success) {
+        res.status(400).json({
+          message: "Report does not match the AnalysisResult format",
+          errors: parsedReport.error.errors
+        });
+        return;
+      }
+
+      res.status(201).json({ message: "Report saved successfully", report });
     } catch (error) {
       next(error);
     }
