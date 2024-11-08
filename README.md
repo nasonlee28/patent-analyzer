@@ -18,7 +18,7 @@ Before you begin, ensure you have met the following requirements:
 To run the application with Docker, follow these steps:
 
 0. **Configure environment variables**
-   Replace the value of the `OPENAI_API_KEY` environment variable in the`.env` file in the root directory with your real OpenAI API key.
+   Replace the value of the `OPENAI_API_KEY` environment variable in the`api/.env` file in the root directory with your real OpenAI API key.
 
 1. **Build the Docker image**
 
