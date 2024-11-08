@@ -6,8 +6,8 @@ import AnalyzerDetails from "./AnalyzerDetails";
 axios.defaults.baseURL = "http://localhost:8080";
 
 const AnalyzeInfringement = () => {
-  const [patentId, setPatentId] = useState("US-RE49889-E1");
-  const [companyName, setCompanyName] = useState("Walmart Inc.");
+  const [patentId, setPatentId] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);

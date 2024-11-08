@@ -20,13 +20,18 @@ To run the application with Docker, follow these steps:
 0. **Configure environment variables**
    Replace the value of the `OPENAI_API_KEY` environment variable in the`api/.env` file in the root directory with your real OpenAI API key.
 
-1. **Build the Docker image**
+1. **Build the Docker image for api**
 
    ```bash
-   docker build -t patent-analyzer .
+   docker build -t api ./api
+
+   docker run -p 8080:8080 api
    ```
 
-2. **Run the Docker container**
+2. **Build the Docker image for web**
+
    ```bash
-   docker run --name patent-analyzer-container -p 3000:3000 patent-analyzer
+   docker build -t web-client ./client
+
+   docker run -p 3000:3000 web-cliente
    ```
