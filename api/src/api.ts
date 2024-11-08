@@ -20,8 +20,8 @@ const analyzer = PatentAnalyzer.getInstance(process.env.OPENAI_API_KEY!, patents
 app.post(
   "/api/v1/analyze-infringement",
   [
-    check("patentId").notEmpty().withMessage("Patent ID is required"), // Add validation for patentId
-    check("companyName").notEmpty().withMessage("Company name is required") // Add validation for companyName
+    check("patentId").notEmpty().withMessage("Patent ID is required"),
+    check("companyName").notEmpty().withMessage("Company name is required")
   ],
   async (req: Request, res: Response, next: NextFunction) => {
     try {

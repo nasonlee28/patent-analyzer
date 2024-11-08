@@ -1,4 +1,3 @@
-// data-loader.ts
 import fs from "fs";
 import { Patent, Company } from "./types";
 
