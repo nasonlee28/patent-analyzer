@@ -8,6 +8,7 @@ export class PatentAnalyzer {
   private openai: OpenAI;
   private patents: Patent[];
   private companies: Company[];
+  private reports: { [key in AnalysisResult["analysis_id"]]: AnalysisResult } = {};
 
   private constructor(apiKey: string, patents: Patent[], companies: Company[]) {
     this.openai = new OpenAI({ apiKey });
@@ -24,6 +25,22 @@ export class PatentAnalyzer {
       PatentAnalyzer.instance = new PatentAnalyzer(apiKey, patents, companies);
     }
     return PatentAnalyzer.instance;
+  }
+
+  saveReport(report: AnalysisResult): void {
+    this.reports[report.analysis_id] = report;
+  }
+
+  getReport(analysisId: string): AnalysisResult {
+    const report = this.reports[analysisId];
+    if (!report) {
+      throw new NotFoundError("Report not found");
+    }
+    return report;
+  }
+
+  getReports(): AnalysisResult[] {
+    return Object.values(this.reports);
   }
 
   async analyzeInfringement(patentId: string, companyName: string): Promise<AnalysisResult> {

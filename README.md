@@ -30,11 +30,3 @@ To run the application with Docker, follow these steps:
    ```bash
    docker run --name patent-analyzer-container -p 3000:3000 patent-analyzer
    ```
-
-## Testing
-
-To run the tests, use the following command:
-
-```bash
-npm test
-```

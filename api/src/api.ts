@@ -35,27 +35,36 @@ app.post(
   }
 );
 
+app.get("/api/v1/reports/:analysisId", (req: Request, res: Response, next: NextFunction) => {
+  const analysisId = req.params.analysisId;
+  const report = analyzer.getReport(analysisId);
+  res.json(report);
+});
+
+app.get("/api/v1/reports", (req: Request, res: Response) => {
+  const reports = analyzer.getReports();
+  res.json(reports);
+});
+
 app.post(
   "/api/v1/save-report",
   body("report", "Report is required").notEmpty(),
   validateRequest,
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { report } = req.body;
+    const { report } = req.body;
 
-      const parsedReport = AnalysisResultSchema.safeParse(report);
-      if (!parsedReport.success) {
-        res.status(400).json({
-          message: "Report does not match the AnalysisResult format",
-          errors: parsedReport.error.errors
-        });
-        return;
-      }
-
-      res.status(201).json({ message: "Report saved successfully", report });
-    } catch (error) {
-      next(error);
+    const parsedReport = AnalysisResultSchema.safeParse(report);
+    if (!parsedReport.success) {
+      res.status(400).json({
+        message: "Report does not match the AnalysisResult format",
+        errors: parsedReport.error.errors
+      });
+      return;
     }
+
+    analyzer.saveReport(report);
+
+    res.status(201).json({ message: "Report saved successfully", report });
   }
 );
 

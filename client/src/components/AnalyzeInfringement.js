@@ -10,13 +10,17 @@ const AnalyzeInfringement = () => {
   const [companyName, setCompanyName] = useState("Walmart Inc.");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(false);
 
   const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
     setResult(null);
-    setLoading(true);
+    setReports([]);
+    setAnalyzing(true);
 
     try {
       const response = await axios.post("api/v1/analyze-infringement", {
@@ -27,7 +31,38 @@ const AnalyzeInfringement = () => {
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
     } finally {
-      setLoading(false);
+      setAnalyzing(false);
+    }
+  };
+
+  const handleSaveReport = async () => {
+    setError(null);
+    setSaving(true);
+    try {
+      await axios.post("api/v1/save-report", {
+        report: result
+      });
+
+      alert("Report saved successfully");
+    } catch (err) {
+      setError(err.response?.data?.message || "An error occurred");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleShowReports = async () => {
+    setError(null);
+    setLoadingReports(true);
+
+    try {
+      const response = await axios.get("api/v1/reports");
+      setReports(response.data);
+      setResult(null);
+    } catch (err) {
+      setError(err.response?.data?.message || "An error occurred");
+    } finally {
+      setLoadingReports(false);
     }
   };
 
@@ -62,10 +97,44 @@ const AnalyzeInfringement = () => {
           </button>
         </div>
         <div className="submit-button">
-          {loading ? <button disabled>Loading...</button> : <button type="submit">Analyze</button>}
+          {analyzing ? (
+            <button disabled>Analyzing...</button>
+          ) : (
+            <button type="submit">Analyze</button>
+          )}
+        </div>
+        <div className="submit-button">
+          {loadingReports ? (
+            <button disabled>Loading...</button>
+          ) : (
+            <button type="button" onClick={handleShowReports}>
+              Show Reports
+            </button>
+          )}
+        </div>
+        <div className="submit-button">
+          {result &&
+            (saving ? (
+              <button disabled>Saving...</button>
+            ) : (
+              <button type="button" onClick={handleSaveReport}>
+                Save Report
+              </button>
+            ))}
         </div>
       </form>
       {result && <AnalyzerDetails result={result} />}
+      {!result && reports.length > 0 && (
+        <div>
+          <h2>Saved Reports: {reports.length}</h2>
+          {reports.map((report, index) => (
+            <div key={index}>
+              <AnalyzerDetails result={report} />
+              <hr />
+            </div>
+          ))}
+        </div>
+      )}
       {error && <div className="error-message">Error: {error}</div>}
     </div>
   );
