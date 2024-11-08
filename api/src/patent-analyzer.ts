@@ -26,25 +26,18 @@ export class PatentAnalyzer {
     return PatentAnalyzer.instance;
   }
 
-  //   async analyzeInfringement(patentId: number, companyName: string): Promise<InfringementAnalysis> {
   async analyzeInfringement(patentId: string, companyName: string): Promise<AnalysisResult> {
     const [patent, company] = this.findPatentAndCompany(patentId, companyName);
 
     const productAnalyses = await this.analyzeProducts(patent, company.products);
     productAnalyses.analysis_date = new Date().toISOString().split("T")[0];
+    productAnalyses.company_name = company.name;
+    productAnalyses.patent_id = patent.publication_number;
+    productAnalyses.analysis_id = Math.random().toString(36).substring(7);
 
     return productAnalyses;
   }
 
-  // async test() {
-  //   const chatCompletion = await this.openai.chat.completions.create({
-  //     messages: [{ role: "user", content: "Say this is a test" }],
-  //     model: "gpt-4o-mini"
-  //   });
-  //   return chatCompletion;
-  // }
-
-  //   private async analyzeProducts(patent: Patent, products: Product[]): Promise<ProductInfringement[]> {
   private async analyzeProducts(patent: Patent, products: Product[]): Promise<AnalysisResult> {
     const prompt = this.createAnalysisPrompt(patent, products);
     const stream = await this.openai.chat.completions.create({
@@ -62,7 +55,6 @@ export class PatentAnalyzer {
         }
       ],
       temperature: 0.2,
-      // response_format: { type: "json_object" },
       response_format: zodResponseFormat(AnalysisResultSchema, "analysis"),
       stream: true
     });
@@ -100,9 +92,6 @@ export class PatentAnalyzer {
 
         Response format:
         {
-            "analysis_id": string,
-            "patent_id": string,
-            "company_name": string,
             "top_infringing_products": [{
                 "product_name": string,
                 "match_score": number,
@@ -129,15 +118,24 @@ export class PatentAnalyzer {
   }
 
   private findPatentAndCompany(patentId: string, companyName: string): [Patent, Company] {
-    const patent = this.patents.find(p => p.publication_number === patentId);
+    const patent =
+      this.patents.find(p => p.publication_number === patentId) ||
+      this.patents.find(p => this.fuzzyMatch(p.publication_number, patentId));
     if (!patent) {
       throw new NotFoundError("Patent not found");
     }
-    const company = this.companies.find(c => c.name.toLowerCase() === companyName.toLowerCase());
+    const company =
+      this.companies.find(c => c.name.toLowerCase() === companyName.toLowerCase()) ||
+      this.companies.find(c => this.fuzzyMatch(c.name, companyName));
     if (!company) {
       throw new NotFoundError("Company not found");
     }
 
     return [patent, company];
+  }
+
+  private fuzzyMatch(target: string, input: string): boolean {
+    const lowerInput = input.toLowerCase();
+    return target.toLowerCase().includes(lowerInput);
   }
 }
