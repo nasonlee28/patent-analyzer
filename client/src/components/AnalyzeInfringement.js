@@ -44,7 +44,9 @@ const AnalyzeInfringement = () => {
             onChange={e => setPatentId(e.target.value)}
             required
           />
-          <button onClick={() => setPatentId("")}>Clear</button>
+          <button type="button" onClick={() => setPatentId("")}>
+            Clear
+          </button>
         </div>
         <div className="input-container">
           <span>Company Name: </span>
@@ -55,7 +57,9 @@ const AnalyzeInfringement = () => {
             onChange={e => setCompanyName(e.target.value)}
             required
           />
-          <button onClick={() => setCompanyName("")}>Clear</button>
+          <button type="button" onClick={() => setCompanyName("")}>
+            Clear
+          </button>
         </div>
         <div className="submit-button">
           {loading ? <button disabled>Loading...</button> : <button type="submit">Analyze</button>}

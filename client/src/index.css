@@ -6,6 +6,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+button {
+  cursor: pointer;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
@@ -46,7 +50,6 @@ tfoot th {
 li {
   white-space: nowrap;
 }
-
 
 ul {
   text-align: start;
